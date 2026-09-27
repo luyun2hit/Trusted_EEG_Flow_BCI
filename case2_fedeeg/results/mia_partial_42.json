@@ -1,0 +1,79 @@
+{
+ "seed": 42,
+ "rounds": [
+  {
+   "round": 1,
+   "auc_pooled": 0.4971,
+   "tpr_at_fpr10": 0.099,
+   "train_acc": 0.3792,
+   "test_acc": 0.3832,
+   "acc_gap": -0.004,
+   "auc_per_client": {
+    "user_a": 0.5004,
+    "user_b": 0.5036,
+    "user_c": 0.4939,
+    "user_d": 0.493
+   }
+  },
+  {
+   "round": 2,
+   "auc_pooled": 0.5016,
+   "tpr_at_fpr10": 0.1149,
+   "train_acc": 0.3677,
+   "test_acc": 0.3663,
+   "acc_gap": 0.0014,
+   "auc_per_client": {
+    "user_a": 0.4979,
+    "user_b": 0.499,
+    "user_c": 0.5119,
+    "user_d": 0.4991
+   }
+  },
+  {
+   "round": 3,
+   "auc_pooled": 0.5,
+   "tpr_at_fpr10": 0.1121,
+   "train_acc": 0.4201,
+   "test_acc": 0.4266,
+   "acc_gap": -0.0065,
+   "auc_per_client": {
+    "user_a": 0.5048,
+    "user_b": 0.4935,
+    "user_c": 0.5069,
+    "user_d": 0.4966
+   }
+  },
+  {
+   "round": 4,
+   "auc_pooled": 0.5015,
+   "tpr_at_fpr10": 0.1101,
+   "train_acc": 0.4298,
+   "test_acc": 0.4219,
+   "acc_gap": 0.0079,
+   "auc_per_client": {
+    "user_a": 0.5105,
+    "user_b": 0.4932,
+    "user_c": 0.5023,
+    "user_d": 0.4996
+   }
+  },
+  {
+   "round": 5,
+   "auc_pooled": 0.5066,
+   "tpr_at_fpr10": 0.106,
+   "train_acc": 0.4578,
+   "test_acc": 0.4579,
+   "acc_gap": -0.0001,
+   "auc_per_client": {
+    "user_a": 0.5127,
+    "user_b": 0.4939,
+    "user_c": 0.5171,
+    "user_d": 0.5033
+   }
+  }
+ ],
+ "centralized": {
+  "auc": 0.5355,
+  "tpr_at_fpr10": 0.1119
+ }
+}

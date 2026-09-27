@@ -1,0 +1,31 @@
+{
+ "protocol": "60:20:20 train/val/test per client (shuffle seed 42); test split identical to previous 80:20 protocol; standardization fit on train part only",
+ "epochs": 81,
+ "per_seed": {
+  "42": {
+   "user_a": 0.6875,
+   "user_b": 0.7274,
+   "user_c": 0.5434,
+   "user_d": 0.6007
+  },
+  "7": {
+   "user_a": 0.6927,
+   "user_b": 0.717,
+   "user_c": 0.5677,
+   "user_d": 0.5503
+  },
+  "2024": {
+   "user_a": 0.7326,
+   "user_b": 0.7188,
+   "user_c": 0.5417,
+   "user_d": 0.5747
+  }
+ },
+ "mean_per_seed": {
+  "42": 0.6398,
+  "7": 0.6319,
+  "2024": 0.642
+ },
+ "mean": 0.6379,
+ "std": 0.0053
+}

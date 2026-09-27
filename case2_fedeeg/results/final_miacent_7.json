@@ -1,0 +1,9 @@
+{
+ "arm": "miacent",
+ "seed": 7,
+ "centralized": {
+  "auc": 0.6343,
+  "tpr_at_fpr10": 0.1392
+ },
+ "elapsed": 193.1
+}
