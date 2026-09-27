@@ -1,0 +1,14 @@
+# 本章三个案例实测环境的依赖版本
+# 安装：pip install -r requirements.txt
+# 说明：以下为实测通过的具体版本；大多数情况下更近的次要版本亦可运行。
+# 案例一、二实测环境：Python 3.12，Windows 11，CPU 单机，版本如下；
+# 案例三实测环境：Python 3.11 + torch 2.11.0+cu126（GPU）+ PyWavelets 1.8.0，
+# 其余依赖相同（CPU 环境亦可运行，仅速度差异）。
+torch==2.9.1          # CPU 版即可（+cpu）
+numpy==2.4.4
+pandas==3.0.2
+scipy==1.18.1
+scikit-learn==1.9.1   # 案例三 TSTR 评估（随机森林）
+matplotlib==3.10.9    # 图表重绘
+pyedflib==0.1.42      # 案例一/三的 EDF 读取
+PyWavelets==1.8.0     # 案例三重识别攻击器的 db4 DWT 输入（与原论文攻击器对齐）
