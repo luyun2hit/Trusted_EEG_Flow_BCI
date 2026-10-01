@@ -1,0 +1,41 @@
+{
+  "config": {
+    "version": 3,
+    "data": "eegmmidb S001-S036 R04(train)/R08+R12(test) left-vs-right MI",
+    "win_dir": "windows_lr",
+    "fs": 160,
+    "chans": 64,
+    "samples": 640,
+    "epochs": 30,
+    "lr": 0.01,
+    "batch": 128,
+    "pert_epochs": 20,
+    "sub_epochs": 25,
+    "maskamp": {
+      "rand": 0.5,
+      "sn": 0.5,
+      "optim_linf": 0.3,
+      "adv_linf": 0.3
+    },
+    "seeds": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "emin_init": "random-untrained-frozen",
+    "emax_submodels": 3,
+    "sn_coef": "per-channel uniform(0.5,1.5) (v3 修复)"
+  },
+  "config_hash": "8a7ef32a0515",
+  "python": "3.11.15",
+  "numpy": "2.4.3",
+  "torch": "2.11.0+cu126",
+  "data_files": {
+    "block1.npz": "20f801c45ca9489d8ffa56d6080931d92239e46deac3351dbf9718540381f31f",
+    "block2.npz": "c65a6c9b45dae5cbc5e98cbdac70ec83d52fa44f1188b7f64c737d112fad6d7f",
+    "block3.npz": "1dddf47e7a512a799aa29a29d5120396c8b4f21206a494fcefd4b98cf015e425"
+  },
+  "merged_from_legacy": "no/rand/optim_linf/adv_linf 行沿用 v2 结果（这些方法代码在 v3 未改动）；sn 行为 v3 修复后重跑。"
+}

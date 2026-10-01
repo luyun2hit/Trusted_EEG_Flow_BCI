@@ -1,0 +1,11 @@
+perturbation,seed,uid_bca_shifted
+rand,0,0.0259
+rand,1,0.0454
+rand,2,0.0343
+rand,3,0.0287
+rand,4,0.0306
+adv_linf,0,0.0306
+adv_linf,1,0.0417
+adv_linf,2,0.0278
+adv_linf,3,0.0343
+adv_linf,4,0.0296
