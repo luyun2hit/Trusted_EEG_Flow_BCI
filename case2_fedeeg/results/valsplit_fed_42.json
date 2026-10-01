@@ -1,0 +1,472 @@
+{
+ "arm": "fed",
+ "seed": 42,
+ "rounds": 27,
+ "epochs": 3,
+ "lr": 0.001,
+ "split": "60:20:20",
+ "hist": [
+  {
+   "round": 1,
+   "val_mean": 0.3451,
+   "test_mean": 0.3681,
+   "val_per_client": {
+    "user_a": 0.3733,
+    "user_b": 0.3611,
+    "user_c": 0.3021,
+    "user_d": 0.3438
+   },
+   "test_per_client": {
+    "user_a": 0.3681,
+    "user_b": 0.3889,
+    "user_c": 0.342,
+    "user_d": 0.3733
+   }
+  },
+  {
+   "round": 2,
+   "val_mean": 0.3694,
+   "test_mean": 0.4041,
+   "val_per_client": {
+    "user_a": 0.4271,
+    "user_b": 0.3663,
+    "user_c": 0.3281,
+    "user_d": 0.3559
+   },
+   "test_per_client": {
+    "user_a": 0.4288,
+    "user_b": 0.4149,
+    "user_c": 0.3698,
+    "user_d": 0.4028
+   }
+  },
+  {
+   "round": 3,
+   "val_mean": 0.4041,
+   "test_mean": 0.434,
+   "val_per_client": {
+    "user_a": 0.474,
+    "user_b": 0.3854,
+    "user_c": 0.3333,
+    "user_d": 0.4236
+   },
+   "test_per_client": {
+    "user_a": 0.4497,
+    "user_b": 0.4688,
+    "user_c": 0.3872,
+    "user_d": 0.4306
+   }
+  },
+  {
+   "round": 4,
+   "val_mean": 0.4023,
+   "test_mean": 0.434,
+   "val_per_client": {
+    "user_a": 0.4653,
+    "user_b": 0.3941,
+    "user_c": 0.3333,
+    "user_d": 0.4167
+   },
+   "test_per_client": {
+    "user_a": 0.4462,
+    "user_b": 0.4826,
+    "user_c": 0.3715,
+    "user_d": 0.4358
+   }
+  },
+  {
+   "round": 5,
+   "val_mean": 0.4275,
+   "test_mean": 0.4453,
+   "val_per_client": {
+    "user_a": 0.5035,
+    "user_b": 0.4253,
+    "user_c": 0.3472,
+    "user_d": 0.434
+   },
+   "test_per_client": {
+    "user_a": 0.4913,
+    "user_b": 0.4913,
+    "user_c": 0.3559,
+    "user_d": 0.4427
+   }
+  },
+  {
+   "round": 6,
+   "val_mean": 0.4379,
+   "test_mean": 0.4488,
+   "val_per_client": {
+    "user_a": 0.5226,
+    "user_b": 0.4236,
+    "user_c": 0.3941,
+    "user_d": 0.4115
+   },
+   "test_per_client": {
+    "user_a": 0.4983,
+    "user_b": 0.4896,
+    "user_c": 0.3906,
+    "user_d": 0.4167
+   }
+  },
+  {
+   "round": 7,
+   "val_mean": 0.4414,
+   "test_mean": 0.4492,
+   "val_per_client": {
+    "user_a": 0.5156,
+    "user_b": 0.4323,
+    "user_c": 0.4028,
+    "user_d": 0.4149
+   },
+   "test_per_client": {
+    "user_a": 0.4913,
+    "user_b": 0.5052,
+    "user_c": 0.3872,
+    "user_d": 0.4132
+   }
+  },
+  {
+   "round": 8,
+   "val_mean": 0.4405,
+   "test_mean": 0.4544,
+   "val_per_client": {
+    "user_a": 0.5295,
+    "user_b": 0.4288,
+    "user_c": 0.3663,
+    "user_d": 0.4375
+   },
+   "test_per_client": {
+    "user_a": 0.5243,
+    "user_b": 0.4983,
+    "user_c": 0.375,
+    "user_d": 0.4201
+   }
+  },
+  {
+   "round": 9,
+   "val_mean": 0.4345,
+   "test_mean": 0.4566,
+   "val_per_client": {
+    "user_a": 0.5243,
+    "user_b": 0.434,
+    "user_c": 0.3663,
+    "user_d": 0.4132
+   },
+   "test_per_client": {
+    "user_a": 0.5226,
+    "user_b": 0.4948,
+    "user_c": 0.3889,
+    "user_d": 0.4201
+   }
+  },
+  {
+   "round": 10,
+   "val_mean": 0.4427,
+   "test_mean": 0.4562,
+   "val_per_client": {
+    "user_a": 0.5295,
+    "user_b": 0.4462,
+    "user_c": 0.3941,
+    "user_d": 0.401
+   },
+   "test_per_client": {
+    "user_a": 0.5087,
+    "user_b": 0.4861,
+    "user_c": 0.3976,
+    "user_d": 0.4323
+   }
+  },
+  {
+   "round": 11,
+   "val_mean": 0.4479,
+   "test_mean": 0.4575,
+   "val_per_client": {
+    "user_a": 0.5,
+    "user_b": 0.4427,
+    "user_c": 0.4253,
+    "user_d": 0.4236
+   },
+   "test_per_client": {
+    "user_a": 0.4601,
+    "user_b": 0.526,
+    "user_c": 0.4184,
+    "user_d": 0.4253
+   }
+  },
+  {
+   "round": 12,
+   "val_mean": 0.4484,
+   "test_mean": 0.4475,
+   "val_per_client": {
+    "user_a": 0.5382,
+    "user_b": 0.4583,
+    "user_c": 0.401,
+    "user_d": 0.3958
+   },
+   "test_per_client": {
+    "user_a": 0.5035,
+    "user_b": 0.4948,
+    "user_c": 0.375,
+    "user_d": 0.4167
+   }
+  },
+  {
+   "round": 13,
+   "val_mean": 0.4536,
+   "test_mean": 0.4588,
+   "val_per_client": {
+    "user_a": 0.5399,
+    "user_b": 0.4479,
+    "user_c": 0.3889,
+    "user_d": 0.4375
+   },
+   "test_per_client": {
+    "user_a": 0.5052,
+    "user_b": 0.5,
+    "user_c": 0.3872,
+    "user_d": 0.4427
+   }
+  },
+  {
+   "round": 14,
+   "val_mean": 0.4518,
+   "test_mean": 0.4609,
+   "val_per_client": {
+    "user_a": 0.5469,
+    "user_b": 0.467,
+    "user_c": 0.3837,
+    "user_d": 0.4097
+   },
+   "test_per_client": {
+    "user_a": 0.5035,
+    "user_b": 0.5,
+    "user_c": 0.4062,
+    "user_d": 0.434
+   }
+  },
+  {
+   "round": 15,
+   "val_mean": 0.4544,
+   "test_mean": 0.4614,
+   "val_per_client": {
+    "user_a": 0.5365,
+    "user_b": 0.4583,
+    "user_c": 0.401,
+    "user_d": 0.4219
+   },
+   "test_per_client": {
+    "user_a": 0.5087,
+    "user_b": 0.5122,
+    "user_c": 0.3941,
+    "user_d": 0.4306
+   }
+  },
+  {
+   "round": 16,
+   "val_mean": 0.4562,
+   "test_mean": 0.4692,
+   "val_per_client": {
+    "user_a": 0.5434,
+    "user_b": 0.4653,
+    "user_c": 0.3924,
+    "user_d": 0.4236
+   },
+   "test_per_client": {
+    "user_a": 0.5243,
+    "user_b": 0.526,
+    "user_c": 0.3906,
+    "user_d": 0.4358
+   }
+  },
+  {
+   "round": 17,
+   "val_mean": 0.4579,
+   "test_mean": 0.4744,
+   "val_per_client": {
+    "user_a": 0.5521,
+    "user_b": 0.4722,
+    "user_c": 0.3889,
+    "user_d": 0.4184
+   },
+   "test_per_client": {
+    "user_a": 0.5208,
+    "user_b": 0.5226,
+    "user_c": 0.3976,
+    "user_d": 0.4566
+   }
+  },
+  {
+   "round": 18,
+   "val_mean": 0.4631,
+   "test_mean": 0.4826,
+   "val_per_client": {
+    "user_a": 0.5417,
+    "user_b": 0.4792,
+    "user_c": 0.3993,
+    "user_d": 0.4323
+   },
+   "test_per_client": {
+    "user_a": 0.5312,
+    "user_b": 0.5434,
+    "user_c": 0.408,
+    "user_d": 0.4479
+   }
+  },
+  {
+   "round": 19,
+   "val_mean": 0.4644,
+   "test_mean": 0.4809,
+   "val_per_client": {
+    "user_a": 0.5486,
+    "user_b": 0.4861,
+    "user_c": 0.3976,
+    "user_d": 0.4253
+   },
+   "test_per_client": {
+    "user_a": 0.5174,
+    "user_b": 0.5226,
+    "user_c": 0.4219,
+    "user_d": 0.4618
+   }
+  },
+  {
+   "round": 20,
+   "val_mean": 0.477,
+   "test_mean": 0.4722,
+   "val_per_client": {
+    "user_a": 0.5764,
+    "user_b": 0.4826,
+    "user_c": 0.4167,
+    "user_d": 0.4323
+   },
+   "test_per_client": {
+    "user_a": 0.5139,
+    "user_b": 0.5191,
+    "user_c": 0.4115,
+    "user_d": 0.4444
+   }
+  },
+  {
+   "round": 21,
+   "val_mean": 0.4718,
+   "test_mean": 0.4883,
+   "val_per_client": {
+    "user_a": 0.5451,
+    "user_b": 0.4948,
+    "user_c": 0.4253,
+    "user_d": 0.4219
+   },
+   "test_per_client": {
+    "user_a": 0.5191,
+    "user_b": 0.5434,
+    "user_c": 0.4184,
+    "user_d": 0.4722
+   }
+  },
+  {
+   "round": 22,
+   "val_mean": 0.4627,
+   "test_mean": 0.4909,
+   "val_per_client": {
+    "user_a": 0.5347,
+    "user_b": 0.4948,
+    "user_c": 0.4115,
+    "user_d": 0.4097
+   },
+   "test_per_client": {
+    "user_a": 0.5399,
+    "user_b": 0.5521,
+    "user_c": 0.4132,
+    "user_d": 0.4583
+   }
+  },
+  {
+   "round": 23,
+   "val_mean": 0.4648,
+   "test_mean": 0.4848,
+   "val_per_client": {
+    "user_a": 0.5486,
+    "user_b": 0.4722,
+    "user_c": 0.408,
+    "user_d": 0.4306
+   },
+   "test_per_client": {
+    "user_a": 0.5139,
+    "user_b": 0.5399,
+    "user_c": 0.4097,
+    "user_d": 0.4757
+   }
+  },
+  {
+   "round": 24,
+   "val_mean": 0.4748,
+   "test_mean": 0.4961,
+   "val_per_client": {
+    "user_a": 0.5399,
+    "user_b": 0.5,
+    "user_c": 0.4167,
+    "user_d": 0.4427
+   },
+   "test_per_client": {
+    "user_a": 0.533,
+    "user_b": 0.5503,
+    "user_c": 0.4184,
+    "user_d": 0.4826
+   }
+  },
+  {
+   "round": 25,
+   "val_mean": 0.4718,
+   "test_mean": 0.4909,
+   "val_per_client": {
+    "user_a": 0.5469,
+    "user_b": 0.4931,
+    "user_c": 0.4062,
+    "user_d": 0.441
+   },
+   "test_per_client": {
+    "user_a": 0.526,
+    "user_b": 0.5399,
+    "user_c": 0.4184,
+    "user_d": 0.4792
+   }
+  },
+  {
+   "round": 26,
+   "val_mean": 0.48,
+   "test_mean": 0.5022,
+   "val_per_client": {
+    "user_a": 0.5469,
+    "user_b": 0.5278,
+    "user_c": 0.4062,
+    "user_d": 0.4392
+   },
+   "test_per_client": {
+    "user_a": 0.5503,
+    "user_b": 0.5573,
+    "user_c": 0.4236,
+    "user_d": 0.4774
+   }
+  },
+  {
+   "round": 27,
+   "val_mean": 0.487,
+   "test_mean": 0.48,
+   "val_per_client": {
+    "user_a": 0.5521,
+    "user_b": 0.5104,
+    "user_c": 0.4306,
+    "user_d": 0.4549
+   },
+   "test_per_client": {
+    "user_a": 0.5035,
+    "user_b": 0.5573,
+    "user_c": 0.3993,
+    "user_d": 0.4601
+   }
+  }
+ ],
+ "final_val": 0.487,
+ "final_test": 0.48,
+ "elapsed": 158.0
+}

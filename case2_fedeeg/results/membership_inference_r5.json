@@ -1,0 +1,54 @@
+{
+ "note": "基于损失的白盒成员推断（Yeom AUC 口径）：成员=客户端训练样本，非成员=同客户端留出测试样本；AUC=0.5 表示无可用泄漏。训练配置与 fedegg_reimpl.py 完全一致。",
+ "n_seeds": 3,
+ "seeds": [
+  2024,
+  42,
+  7
+ ],
+ "federated_rounds": [
+  {
+   "round": 1,
+   "auc_mean": 0.4978,
+   "auc_std": 0.006,
+   "tpr10_mean": 0.1044,
+   "gap_mean": 0.0018
+  },
+  {
+   "round": 2,
+   "auc_mean": 0.5006,
+   "auc_std": 0.002,
+   "tpr10_mean": 0.109,
+   "gap_mean": 0.0026
+  },
+  {
+   "round": 3,
+   "auc_mean": 0.5032,
+   "auc_std": 0.0025,
+   "tpr10_mean": 0.1103,
+   "gap_mean": 0.0065
+  },
+  {
+   "round": 4,
+   "auc_mean": 0.5044,
+   "auc_std": 0.0022,
+   "tpr10_mean": 0.1084,
+   "gap_mean": 0.0098
+  },
+  {
+   "round": 5,
+   "auc_mean": 0.5061,
+   "auc_std": 0.0005,
+   "tpr10_mean": 0.1061,
+   "gap_mean": -0.0017
+  }
+ ],
+ "centralized_auc_mean": 0.5348,
+ "centralized_auc_std": 0.0019,
+ "final_round_per_client": {
+  "user_a": 0.5142,
+  "user_b": 0.4965,
+  "user_c": 0.5156,
+  "user_d": 0.4991
+ }
+}

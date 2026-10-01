@@ -1,0 +1,40 @@
+{
+  "note": "各客户端仅用本地训练集独立训练 72 epoch（与调参后联邦累计训练量对齐），在本地测试集上评估；无聚合、无参数交换。原 15 epoch 版本归档于 local_only_baseline_r5.json。",
+  "seeds": [
+    42,
+    7,
+    2024
+  ],
+  "epochs": 72,
+  "per_seed_client_acc": {
+    "42": {
+      "user_a": 0.7135,
+      "user_b": 0.7344,
+      "user_c": 0.5503,
+      "user_d": 0.6406
+    },
+    "7": {
+      "user_a": 0.7274,
+      "user_b": 0.7587,
+      "user_c": 0.5833,
+      "user_d": 0.6354
+    },
+    "2024": {
+      "user_a": 0.7587,
+      "user_b": 0.7431,
+      "user_c": 0.5434,
+      "user_d": 0.6337
+    }
+  },
+  "mean_per_seed": [
+    0.6597,
+    0.6762,
+    0.6697
+  ],
+  "overall_mean": 0.6685,
+  "overall_std": 0.0083,
+  "reference": {
+    "federated_final_round": 0.5091,
+    "centralized": 0.5661
+  }
+}

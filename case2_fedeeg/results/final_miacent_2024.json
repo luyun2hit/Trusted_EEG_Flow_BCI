@@ -1,0 +1,9 @@
+{
+ "arm": "miacent",
+ "seed": 2024,
+ "centralized": {
+  "auc": 0.6176,
+  "tpr_at_fpr10": 0.1261
+ },
+ "elapsed": 185.5
+}

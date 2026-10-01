@@ -1,0 +1,11 @@
+{
+ "arm": "miacent",
+ "seed": 2024,
+ "epochs": 81,
+ "split": "60:20:20",
+ "centralized": {
+  "auc": 0.6469,
+  "tpr_at_fpr10": 0.1406
+ },
+ "elapsed": 165.0
+}
