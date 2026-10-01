@@ -1,215 +1,162 @@
-# 脑电数据保护与隐私计算——三个经典案例的本机实测
+# 案例三：癫痫发作合成数据发布（EpilepsyGAN @ CHB-MIT）
 
-本代码包三个案例的全部实验均已在普通 CPU 单机上真实运行，包内附有各自的实测结果文件（`results/`），
-读者可按本说明逐步复现。
+对应章节：4.3 案例三——发布环节的条件 GAN 合成数据替代。
 
-## 环境
+## 这是什么
 
-- 案例一、二：Python 3.10+（实测 3.12）、纯 CPU 即可；依赖 `torch`（实测 2.9.1+cpu）、`numpy`、`scipy`、`scikit-learn`、`pyedflib`、`matplotlib`、`pandas`
-- 案例三：实测为 Python 3.11 + PyTorch 2.11.0+cu126 + PyWavelets 1.8，单机 GPU（NVIDIA GTX 1660 SUPER）加速；纯 CPU 亦可运行（训练明显变慢，约 1.5 小时量级，估算值）
-- 安装示例：`pip install torch numpy scipy scikit-learn pyedflib matplotlib pandas PyWavelets`（锁定版本见 `requirements.txt`）
-- 操作系统：Windows / Linux / macOS 均可（实测为 Windows + Git Bash）
+原论文（Pascual et al., 2021，见章节参考文献[13]）基于付费的 EPILEPSIAE
+数据库与 Python 2.7 / TF 0.12 实现。本目录将其**端到端移植到公开免费的
+CHB-MIT 头皮 EEG 数据库**（PhysioNet）并以 PyTorch 重实现：
 
-## 目录结构
+- 条件 GAN：以发作间期窗为条件生成发作期窗；U-Net 生成器（加权跳跃连接）
+  + LSGAN 损失（判别器保持线性输出）+ L1 参照正则（λ=10）
+  + 逐通道谱幅度正则（λ_spec=1.0，v4 修正）+ 身份对抗去偏（λ_adv 可调）；
+- 留一被试（4 折）训练，为未见被试生成合成发作数据；
+- 验收协议：TSTR 效用（合成数据训练、真实数据测试的随机森林发作检测）、
+  患者重识别（隐私，波形+db4 DWT 输入的残差攻击器，多种子，
+  **平衡准确率 BCA 为主指标**）、最近邻记忆审计、谱余弦相似度；
+- 双通道（F7–T3/F8–T4，即新版命名的 F7–T7/F8–T8）、4 秒窗、
+  抗混叠降采样至 128Hz；CPU 可跑，检测到 CUDA 时自动用 GPU
+  （`DEVICE=cpu` 可强制 CPU）。
 
-```
-随书代码包/
-├── case1_user_wise_perturbations/   案例一：发布前的用户身份扰动保护
-│   ├── README.md                    案例一详细说明与结果解释范围
-│   ├── download.py                  eegmmidb 左/右手 MI 子集下载器（幂等续跑）
-│   ├── preprocess_mi2.py            预处理：带通 + 分段 + 逐run标准化
-│   ├── eeg_models.py                独立重实现的 EEGNet/ShallowConvNet/分类头
-│   ├── run_perturbations.py         四种扰动生成与任务/UID 评估（配置哈希缓存，可断点续跑）
-│   ├── make_fig.py                  图 1 重绘（均值±标准差）
-│   └── results/                     本机实测结果（CSV/图）
-├── case2_fedeeg/                    案例二：联邦平均协同学习
-│   ├── README.md                    案例二详细说明、协议与许可（上游 MIT）
-│   ├── fedegg_reimpl.py             LSTM+FedAvg 的 PyTorch 重实现
-│   ├── merge_results.py             合并各种子结果为 CSV/JSON
-│   ├── membership_inference.py      成员推断抽查（基于损失的白盒 MIA）
-│   ├── mia_merge.py                 合并各种子 MIA 结果
-│   ├── local_only_baseline.py       本地独立训练基线（各客户端不聚合，等累计训练量）
-│   ├── sweep.py                     调参筛查（轮数/本地 epoch/学习率）
-│   ├── final_run.py                 调参后配置（24 轮×3 epoch）四臂运行
-│   ├── merge_tuned.py               合并调参后结果（原 5 轮归档为 *_r5）
-│   ├── valsplit_run.py              验证集协议（60:20:20）六臂重跑（论文报告值）
-│   ├── merge_valsplit.py            合并验证集协议正式结果（24 轮归档为 *_tuned24）
-│   ├── make_fig.py                  收敛曲线绘图
-│   └── results/                     本机实测结果（CSV/JSON/图 + 种子级 partial_*.json、hist_*.npy）
-└── case3_epilepsygan_chbmit/        案例三：癫痫发作合成数据发布
-    ├── README.md                    案例三详细说明、失效模式与许可
-    ├── download_segments.py         CHB-MIT 分段下载器（HTTP Range 按需下载）
-    ├── preprocess.py                4 秒窗切分（ictal 3s 重叠 / interictal）
-    ├── epilepsygan_chbmit.py        条件 GAN 留一法训练（PyTorch）
-    ├── evaluate_chbmit.py           TSTR 效用 + 重识别隐私 + 最近邻审计 + 谱相似度评估
-    ├── attacker_power_control.py    攻击器能力阳性对照（同状态、无重叠窗）
-    ├── regen_timeiso.py             时间隔离再生成（条件窗限于训练侧前半时段）
-    ├── run_timeiso_eval.py          时间隔离版评估驱动（UID / NN+谱相似度）
-    ├── tstr_td_features.py          时域/非线性特征 TSTR 复核（指标耦合对照）
-    └── results/                     本机实测结果（JSON/图 + 逐种子日志 uid_logs/）
-```
+## 文件
 
-> 关于上游源码：本代码包的三个案例均为**独立重实现**，不捆绑上游仓库源文件。
-> 复现案例二需自行克隆 FedEEG 上游仓库（含数据，见下文案例二说明）；
-> 三篇原论文与其官方源码的获取方式见各案例 README 与章节参考文献，
-> 请按上游各自许可使用，不要将上游代码或论文 PDF 并入本发布包。
+| 文件 | 作用 |
+|---|---|
+| `annotations.json` | 4 名被试（chb01/03/05/08）的发作起止标注（整理自 CHB-MIT 官方 seizure 文件） |
+| `download_segments.py` | 分段下载器：利用 EDF 定长记录结构 + HTTP Range 只取所需字节（约 60MB 而非整库 40GB+），幂等续跑 |
+| `preprocess.py` | 分段 → 4 秒窗（ictal 3s 重叠 / interictal 训练池 + 非重叠测试集） |
+| `dsp.py` | 共享抗混叠降采样（逐通道 resample_poly，v5 修正拼接向量跨通道滤波污染） |
+| `epilepsygan_chbmit.py` | 条件 GAN 留一法训练（逐折固定种子、断点续训含全部 RNG 状态、逐折清单 manifest_<sid>.json 绑定配置/数据/产物哈希；`EPOCHS`/`LAMBDA_L1`/`LAMBDA_SPEC`/`LAMBDA_ADV`/`MAX_PAIRS`/`ONLY`/`OUT_GAN_DIR` 环境变量可调） |
+| `evaluate_chbmit.py` | TSTR 效用 + 重识别（DWT+残差攻击器，多种子，BCA 主指标，阳性对照提示）+ 最近邻记忆审计 + 谱相似度 |
+| `regen_timeiso.py` | 时间隔离再生成：条件窗限于间期池前半时段（294 窗，已丢弃与测试侧共享 1 秒的边界窗） |
+| `run_timeiso_eval.py` | 时间隔离评估驱动：`MODE=tstr/uid/nnsim/all`，`MODE=all` 生成论文最终数字所依据的 `results/summary_timeiso.json` |
+| `tstr_td_features.py` | 时域/非线性特征 TSTR 复核（打破谱训练—谱评价的指标耦合；每通道 10 特征共 20 维） |
+| `attacker_power_control.py` | 攻击器能力阳性对照：同状态（间期→间期、发作→发作）、训练/测试窗不重叠 |
+| `make_fig_timeiso.py` | 用时间隔离版数据重绘论文图 3/4 并导出波形源数据 npz |
+| `results/` | 本机实测结果与图件源数据（见下） |
 
----
-
-## 案例一：用户级扰动（User-wise Perturbations @ eegmmidb）
-
-**自包含**：模型与扰动算法按原论文期刊版本（Chen et al., J. Neural Eng.
-22(1):016040, 2025）的算法描述**独立重实现**（`eeg_models.py`），
-不依赖、不复制上游仓库源文件。
-
-**运行步骤**（在 `case1_user_wise_perturbations/` 下）：
+## 运行
 
 ```bash
-# 1) 下载 eegmmidb 36 名被试 × R04/R08/R12 左/右手运动想象 run（约 270MB，幂等续跑）
-python download.py                            # 自动循环直至全部完成
-
-# 2) 预处理：[4,32]Hz 带通，提示后 [0,4]s 窗，逐 run 通道标准化
-python preprocess_mi2.py                      # 输出 windows_lr/block{1,2,3}.npz
-
-# 3) 扰动实验（5 种扰动 × 5 种子 + 跨架构攻击器 + 时移鲁棒性 + 范数报告，
-#    全程约 2.5 小时，缓存绑定配置哈希，可断点续跑）
-python run_perturbations.py                   # 被中断后重复执行直至 ALL DONE
-
-# 4) 重绘正文图 1（校验种子齐全，均值±标准差）
-python make_fig.py
+pip install PyWavelets    # 攻击器 DWT 输入需要（其余依赖见根目录 requirements.txt）
+python download_segments.py          # 按需下载（可续跑）
+python preprocess.py                 # 4 秒窗切分
+python epilepsygan_chbmit.py         # 4 折留一训练（默认 EPOCHS=40、LAMBDA_ADV=2.0；
+                                     #   GPU 约 5 分钟/4 折；ONLY=chb01 可只跑一折）
+python regen_timeiso.py              # 时间隔离再生成（条件窗 = 间期池前 294 窗）
+# 时间隔离版完整评估（论文最终数字），一条命令生成 summary_timeiso.json：
+GAN_DIR=gan_results_timeiso MODE=all OUT_JSON=results/summary_timeiso.json python run_timeiso_eval.py
+# 也可分 MODE=tstr/uid/nnsim 单独运行（UID 多种子耗时较长，可用
+# UID_SEEDS=0,1 与 UID_SEEDS=2,3,4 分批后合并 per_seed 重算均值）
+GAN_DIR=gan_results_timeiso python tstr_td_features.py  # 时域特征复核（强制 timeiso 目录）
+python attacker_power_control.py     # 同状态阳性对照
+python make_fig_timeiso.py           # 重绘图 3/4
 ```
 
-**预期结果**（`results/perturbation_results.csv` 等，5 种子均值±标准差）：
+## 预期结果（本机实测，v5 修正版，时间区间隔离协议，2026-09-30 重跑）
 
-| 扰动 | 任务 BCA | UID BCA (EEGNet) | UID BCA (ShallowConvNet) |
+**论文最终数字以 `results/summary_timeiso.json` 为准**；非隔离版留存于
+`results/summary.json` 备查。历史版本（v2/v3/v4）与对照配置（noadv/adv5/spec3）
+的生成结果可由脚本重新生成，不随本仓库发布；其评估结果 json 已随
+`results/` 一并提供（uid_timeiso_noadv.json、uid_timeiso_adv5.json、
+uid_timeiso_spec3.json、tstr_timeiso_noadv.json、tstr_timeiso_adv5.json）。
+
+- 效用（TSTR，几何均值，Welch 带功率特征）：真实基线 **83.94%** vs
+  合成 **69.12%**（逐患者差值 +0.66/−47.19/+1.35/−14.09pp）；
+  时域 20 维特征复核：合成 63.78% vs 基线 85.57%（−21.79pp）；
+- 隐私（患者重识别，随机水平 25%，5 个攻击器初始化种子，**BCA 主指标**；
+  标准差表示初始化间变异，非独立实验样本）：
+  合成发作 **49.90%±0.11%（2.00×随机）**；真实发作 18.53%±3.38%
+  （0.74×随机，低于随机水平的成因未能确证，见阳性对照说明）；
+  原始 accuracy 口径：合成 49.90%、真实 18.30%（真实发作测试集类别
+  不平衡 53/48/68/113，多数类基线 40.07%，两口径不宜直接互比）；
+- 最近邻记忆审计：synth→train 与 real→train 最近邻距离比 0.93–1.10 ≈ 1，
+  近重复率（距离 < 1e-3）为 0，未发现逐样本记忆迹象；
+- 谱余弦相似度：real-real 0.653–0.737 与 real-synth 0.606–0.737 区间
+  总体重叠（患者间排序不一致，该指标仅支持群体层面的频谱合理性）；
+- 同状态阳性对照（`attacker_power_control.json`，BCA）：间期→间期
+  56.30%、发作→发作 68.65%（2.25×/2.75×随机），提示攻击器在单一状态内
+  能够学习身份特征；该对照不能证明跨状态识别偏低（0.74×随机）的成因，
+  因此隐私结论仅以"合成 vs 真实"的相对比较为限。
+
+## 隐私—效用权衡（v5 修正后的核心结论）
+
+| 配置 | Exp_synt BCA | TSTR 均值 | 说明 |
 |---|---|---|---|
-| 无扰动 | 56.40±1.50% | 42.31±2.91% | 31.61±1.93% |
-| RAND | 54.86±1.07% | 3.46±0.80% | 5.07±0.90% |
-| SN | 54.98±3.51% | 3.39±0.95% | 3.83±0.82% |
-| EMIN | 54.94±1.90% | 2.72±0.08% | 3.61±0.69% |
-| EMAX | 56.49±2.89% | 3.37±0.52% | 4.07±0.73% |
+| λ_adv=0（不去偏） | 47.73%±1.21%（1.91×） | 82.33% | 效用最高（逐患者差值仅 −0.07~−2.91pp） |
+| λ_adv=2.0（默认） | 49.90%±0.11%（2.00×） | 69.12% | 去偏无效、效用代价 −13.2pp |
+| λ_adv=5.0（3 种子对照） | 47.68%±0.14%（1.91×） | 70.47% | 加大权重亦无改善 |
 
-（UID 随机水平 = 1/36 ≈ 2.78%。）时移鲁棒性见 `results/robustness.csv`，
-跨架构攻击见 `results/cross_arch.csv`，实际扰动范数见
-`results/perturbation_norms.csv`。
+旁证：λ_spec=3.0（谱锚定加强，λ_adv=2，3 种子）Exp_synt BCA 44.50%±1.27%
+（1.78×随机），与 λ_spec=1.0 各配置同处 1.8–2.0× 区间——可重识别性对谱锚定
+强度同样不敏感。
 
-**关键语义提醒**：eegmmidb 的 R04/R08/R12（T1/T2=左/右手想象）与
-R06/R10/R14（T1/T2=双手/双脚想象）标注符号相同但任务不同，**不能合并**，
-本案例只使用前者；这与原论文 MI2 的左/右手任务定义一致。
-另注意：任务基线对预处理敏感——若不做逐 run 通道标准化，跨 block 任务
-精度会跌至随机水平附近，这是本章写作过程中发现并已写入正文的实践要点。
+**v4/v5 的重要修正结论**：v3 曾报告"身份对抗去偏将合成可识别性从
+46.20% 降至 34.73%"。v4/v5 同时修正了多项实现缺陷（谱损失逐通道化、
+抗混叠降采样、时间隔离边界、逐折种子、逐通道滤波等），修正后梯度反转
+去偏在 λ_adv=0/2/5 下均不能降低合成发作的可重识别性（≈1.9–2.0×随机），
+反而带来显著效用代价（λ_adv=2 时 TSTR 较不去偏低 13.2pp）。
+由于多项修正并行引入、未做单因素消融，v3→v4/v5 的差异**不能仅归因于
+旧谱损失**；同样，真实发作跨状态识别低于随机（0.74×）也不能仅归因于
+域偏移，同状态对照只能说明攻击器在单一状态内能力充足。
+需要谨慎解读的是：每患者的合成数据来自不同的留一折生成器，
+49.90% BCA 可能混入"折生成器指纹"成分，宜表述为**折相关的重识别
+信号**（fold-associated re-identification signal），而非纯粹的
+条件通道身份泄漏。合成窗可识别性持续高于真实发作（2.00× vs 0.74×
+随机）这一相对差异，是本案例隐私风险的核心证据；发布前应按正文
+4.3 节"适用边界"补充审计与额外保护。
 
-**结果解释范围**：本协议验证"扰动发布数据 → 干净跨块数据"方向的
-关联能力下降；不构成完整去身份化（扰动模板在发布数据内部仍可能被
-匹配/聚类利用），详见 mi2 目录 README 与正文 4.1 节。
+## v4/v5 修正记录（2026-09-30，对应两轮外部评审意见）
 
----
+1. **时间隔离边界**：旧版条件池取间期池前 295 窗，最后一窗覆盖
+   [97,101)s，与 TSTR 测试侧首窗 [100,104)s 共享 1 秒原始 EEG；
+   现取前 294 窗（最晚覆盖 [96,100)s），两侧不共享任何样本。
+2. **谱损失逐通道化**：旧版对双通道拼接向量整体 rFFT（连接处人工跳变、
+   频率刻度错误），现拆分 (B,2,512) 逐通道计算；该项定位为"逐通道
+   傅里叶幅度正则"，不再声称与 Welch 特征对齐。
+3. **抗混叠降采样**：训练与评估统一改用 resample_poly（旧版 ::2 抽取
+   会把 64Hz 以上能量折叠进低频带）；v5 进一步改为逐通道滤波——v4 对
+   双通道拼接向量整体滤波，通道连接处被当作连续信号产生跨通道振铃
+   （实测最大偏差约 25 µV），现已拆分 (N,2,1024) 分别降采样。
+4. **逐折固定种子 + cudnn 确定性**：折结果与运行/跳过顺序无关；同机
+   同配置两次独立运行逐位一致（已在本机 GPU 环境验证；跨硬件/库版本
+   可能有末位差异）。
+5. **断点续训等价化**：检查点保存/恢复 NumPy/PyTorch/CUDA 及配对 RNG
+   全部状态与配置哈希；中断续训与连续训练逐位一致（已验证）。
+6. **配置绑定输出（v5 改逐折清单）**：目录内逐折清单 manifest_<sid>.json
+   记录配置哈希、折种子、数据文件 SHA-256 与该折产物 SHA-256；配置/数据/
+   产物任一变更后旧输出自动失效重训。v4 的目录级 manifest 在第一折完成后
+   即写全目录有效，会把旧配置折误判为当前配置（新旧折混用），已修复。
+   全局 manifest.json 仅供人读，不参与跳过判定。
+7. **重识别主指标改 BCA**：真实发作测试集类别不平衡（多数类基线
+   40.07%），原始 accuracy 降为补充指标，并报告逐类召回率；
+   删除无脚本支撑的配对 t 检验。
+8. **复现链补齐**：`run_timeiso_eval.py MODE=all` 可直接生成
+   summary_timeiso.json；tstr_td_features.py 的 Welch 参照值改为从
+   该文件读取，不再硬编码。
 
-## 案例二：联邦平均（FedEEG，PyTorch 重实现）
+## 失效模式（正文 4.3 节"陷阱"的工程纪律）
 
-**额外依赖**：原仓库自带数据（原实现为 TF1.x/Keras，已无法在现代环境运行，
-本案例按其源码逐行复刻协议并以 PyTorch 重实现）
+1. LSGAN 判别器**不能接 sigmoid**——会截断线性输出梯度导致生成振幅坍缩，
+   失效是静默的，必须以振幅等物理统计量验收；
+2. L1/L2 参照损失在随机配对下退化为逐点中位数回归（λ 须与对抗项同量级，
+   本实现 λ=10）；
+3. 间期窗若在训练/测试两侧复用，特异性会虚高至 1.000——
+   本实现已修复为非重叠窗按时间序对半切分（`evaluate_chbmit.py`），
+   且生成条件窗限定于训练侧前半时段并丢弃共享边界窗（`regen_timeiso.py`），
+   实现原始时间区间隔离；
+4. **条件 GAN 的跳跃连接会携带条件窗身份信息**——且该折相关重识别
+   信号在梯度反转去偏（λ_adv=0/2/5）下未见降低（v4/v5 修正后的结论）；
+   隐私验收的攻击器必须足够强
+   （波形+DWT 输入、残差结构、足量间期训练数据、多种子），
+   并须设同状态阳性对照来提示攻击器能力是否充足。
 
-```bash
-git clone https://github.com/AmanPriyanshu/FedEEG.git   # 解压后主目录名 FedEEG-main
-# 数据在 FedEEG-main/dataset_hand_movement/user_a-d.csv
-```
+## 许可与数据来源
 
-**运行步骤**（在 `case2_fedeeg/` 下）：
-
-```bash
-FEDEEG_DATA=/path/to/FedEEG-main/dataset_hand_movement python fedegg_reimpl.py
-python merge_results.py   # 合并各种子结果（原 5 轮配置）
-python make_fig.py        # 生成逐轮收敛图
-python membership_inference.py && python mia_merge.py   # 成员推断抽查（隐私验收）
-# 调参后配置（24 轮 × 3 本地 epoch）：
-python final_run.py fed 42 && python final_run.py centralized 42 && ...  # 按种子分次
-python merge_tuned.py
-# 验证集协议正式配置（27 轮，60:20:20 三划分，论文报告值）：
-python valsplit_run.py sweep 42          # 轮数筛查（仅用验证集）
-python valsplit_run.py fed 42 27 && ...  # 六臂 × 3 种子，按种子分次
-python merge_valsplit.py && python make_fig.py
-```
-
-**预期结果**（3 种子均值，修正协议后）：原 5 轮配置聚合全局模型 46.15%±0.4%、
-集中式基线 53.33%±1.1%；正式配置（验证集协议：60:20:20 三划分、27 轮，
-轮数只按验证集选取）聚合全局模型 47.90%±1.0%，等训练量集中式基线
-54.92%±0.8%、本地独立训练基线 63.79%±0.5%（联邦—集中式差距约 7.0 个
-百分点，排序不变：本地 > 集中式 > 联邦）。本实现对原协议有两处修正：
-标准化参数改为各客户端仅用本地训练集计算；每轮聚合后以全局模型评估
-（原协议记录的是聚合前本地模型，原论文报告 57.67% vs 61.83% 即该口径）。
-逐轮准确率见 `results/federated_rounds.csv`。
-
-**隐私验收（成员推断抽查）**：对逐轮聚合全局模型做基于损失的成员推断
-（受 Yeom 阈值攻击启发的 AUC 口径，3 种子）。原 5 轮欠训练配置下 AUC 贴近
-随机（末轮 0.506±0.001，阴性源于欠拟合，不构成隐私证据）；正式配置
-（27 轮）下末轮 AUC 0.547±0.007，等训练量集中式模型 AUC 0.651±0.007——
-两者拟合程度不同，差异不能单独归因于联邦聚合；详见 `case2_fedeeg/README.md`。
-
----
-
-## 案例三：癫痫发作合成数据（EpilepsyGAN @ CHB-MIT）
-
-完全自包含，数据从 PhysioNet 公开免费获取（无需账号），
-利用 EDF 定长记录结构 + HTTP Range 请求，仅下载所需片段（约 60MB 而非整库 40GB+）。
-
-**运行步骤**（在 `case3_epilepsygan_chbmit/` 下）：
-
-```bash
-python download_segments.py     # 按需下载 4 名被试的发作段与间期段（可续跑）
-python preprocess.py            # 4 秒窗切分，输出 windows/*.npy
-python epilepsygan_chbmit.py    # 4 折留一训练（默认 EPOCHS=40 + 身份对抗去偏；
-                                #   GPU 约 5 分钟，CPU 约 1.5 小时（估算），断点续跑）
-python evaluate_chbmit.py       # TSTR 效用 + 重识别（强化攻击器，5 种子确定性）+ 最近邻审计 + 谱相似度
-python attacker_power_control.py # 攻击器能力阳性对照（同状态、无重叠窗）
-python regen_timeiso.py         # 时间隔离再生成：条件窗限于间期池前半时段（与 TSTR 训练侧同侧）
-GAN_DIR=gan_results_timeiso ONLY_TSTR=chb01 python evaluate_chbmit.py   # 逐折复核（4 折各跑一次）
-```
-
-**最终结果（时间区间隔离协议，`results/summary_timeiso.json`，2026-09-24 重跑）**：
-
-- 效用（TSTR，几何均值，间期窗非重叠且按时间序对半分、生成条件窗限于训练侧时段）：
-  真实数据基线 83.73% vs 去偏后合成 71.12%；去偏前对照（同协议）83.22%，
-  即身份去偏的效用代价约 12.1 个百分点
-- 隐私（强化攻击器，5 种子确定性评估，随机水平 25%）：合成发作 34.73%±4.58%（1.39×随机）；
-  去偏前对照 46.20%±1.43%（1.85×随机）；去偏前后配对 t 检验 t(4)=6.01，p=0.004；
-  真实发作 17.02%±2.94%（0.68×随机，跨状态域偏移导致低于随机）
-- 攻击器能力阳性对照（`results/attacker_power_control.json`，同状态、无重叠窗）：
-  间期→间期 64.5%±6.6%、发作→发作 72.0%±1.8%（2.6×/2.9×随机），证明跨状态
-  指标偏低源于域偏移而非攻击器不足
-- 最近邻记忆审计：synth/real 最近邻距离比 0.98–1.10 ≈ 1，无逐样本记忆迹象
-- 谱余弦相似度：real-real 0.653–0.738 与 real-synth 0.640–0.687 总体区间重叠
-  （患者间排序不一致，该指标仅支持群体层面频谱合理性）
-- 非隔离版结果留存于 `results/summary.json` 备查
-
-**v2/v3 审计发现（本代码包 2026-09 修订的核心结论）**：v1 的重识别攻击器
-能力过弱（无 DWT 输入、12 epoch、单次运行，N=4 阳性对照仅 39.7%，原论文同规模
-约 70%），隐私结论证据不足。攻击器对齐原论文（波形+db4 DWT 输入、残差网络、
-全量间期训练池、多种子）后发现：未去偏的条件 GAN 会把条件间期窗的患者指纹
-泄漏进合成发作（可识别性 1.85×随机，高于真实发作的 0.68×）；新增身份对抗去偏
-（LAMBDA_ADV=2.0，梯度反转层 + UID 头）将其降至 1.39×，代价为 TSTR 效用
-−12.1pp（83.22%→71.12%，时间隔离协议）。完整的隐私—效用权衡表与配置说明见案例三 README。
-
-**复现纪律提示**：若自行修改网络或评估管道，注意本章报告的四个失效模式——
-LSGAN 判别器误接 sigmoid 会导致生成振幅坍缩；L1 参照随机配对会导致逐点中位数回归
-（故 λ 下调为 10、判别器保持线性输出）；评估时间期窗若训练/测试两侧复用，
-特异性会虚高至 1.000 的假象（本包 evaluate_chbmit.py 已修复为非重叠窗按时间序
-对半切分，且 regen_timeiso.py 将生成条件窗限定于训练侧前半时段，实现原始时间
-区间隔离）；
-条件 GAN 的跳跃连接会把条件窗身份指纹泄漏进合成数据（须用对齐原论文的
-强化攻击器审计，并以身份对抗去偏消除，详见案例三 README）。
-
----
-
-## 数据集获取
-
-| 数据集 | 用途 | 获取 |
-|---|---|---|
-| PhysioNet eegmmidb 1.0.0 | 案例一 | https://physionet.org/content/eegmmidb/1.0.0/ （脚本自动下载） |
-| EEG data from hands movement | 案例二 | 随 FedEEG 仓库分发（GitHub） |
-| CHB-MIT Scalp EEG 1.0.0 | 案例三 | https://physionet.org/content/chbmit/1.0.0/ （脚本按需下载） |
-
-## 引用
-
-使用本代码包请引用对应章节及三篇原论文（Chen et al., J. Neural Eng. 2025；Priyanshu, 2021；Pascual et al., 2021），
-完整文献信息见章节参考文献[13][14][15]。
+- 本目录代码为本书配套材料（PyTorch 重实现部分），许可见仓库根目录 LICENSE；
+- CHB-MIT 数据来自 PhysioNet（https://physionet.org/content/chbmit/1.0.0/），
+  开放获取（ODC-BY），使用须遵守其条款并引用：Shoeb, A. Ph.D. thesis, MIT, 2009；
+- 上游 GAN_epilepsy 仓库当前**未附带明确开源许可证**，本代码未复制其源文件，
+  仅按论文算法描述实现（适配性重实现，差异已在正文披露）；原论文实验基于
+  付费 EPILEPSIAE 数据库，请勿尝试再分发其数据。
