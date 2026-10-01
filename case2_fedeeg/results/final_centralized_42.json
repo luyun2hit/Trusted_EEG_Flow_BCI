@@ -1,9 +1,0 @@
-{
- "arm": "centralized",
- "seed": 42,
- "epochs": 72,
- "lr": 0.001,
- "acc": 0.5642,
- "loss": 1.0159,
- "elapsed": 180.9
-}
