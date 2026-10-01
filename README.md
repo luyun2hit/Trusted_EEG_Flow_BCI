@@ -1,6 +1,6 @@
 # Trusted EEG Flow BCI — Companion Code Package
 
-Companion code for the book chapter **"Trusted Flow of EEG Data in Brain-Computer
+Companion code for the chapter **"Trusted Flow of EEG Data in Brain-Computer
 Interfaces: Three Privacy-Preserving Pathways and Verifiable Practices"**.
 
 The chapter studies which artifacts may cross trust boundaries in EEG data flows
